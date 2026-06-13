@@ -1,0 +1,21 @@
+name: implement
+version: 1.0.0
+description: Generate an implementation plan from a GitHub issue, review, and approve before coding
+category: dev
+trigger: /implement
+author: diovanibmotta
+license: MIT
+
+install:
+  source: implement.md
+  destinations:
+    global:
+      windows: "%USERPROFILE%\.claude\commands\implement.md"
+      unix: "~/.claude/commands/implement.md"
+    local: ".claude/commands/implement.md"
+
+requirements:
+  - name: gh
+    description: GitHub CLI — https://cli.github.com
+  - name: git
+    description: Git version control

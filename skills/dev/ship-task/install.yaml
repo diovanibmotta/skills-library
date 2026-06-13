@@ -1,0 +1,23 @@
+name: ship-task
+version: 1.0.0
+description: Ship a completed task — tests, review, commit, push, PR ready, board update
+category: dev
+trigger: /ship-task
+author: diovanibmotta
+license: MIT
+
+install:
+  source: ship-task.md
+  destinations:
+    global:
+      windows: "%USERPROFILE%\.claude\commands\ship-task.md"
+      unix: "~/.claude/commands/ship-task.md"
+    local: ".claude/commands/ship-task.md"
+
+requirements:
+  - name: gh
+    description: GitHub CLI — https://cli.github.com
+  - name: git
+    description: Git version control
+  - name: stack-toolchain
+    description: The project's build/test toolchain (mvn, npm, go, cargo, etc.)

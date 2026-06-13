@@ -1,0 +1,21 @@
+name: pr-review-resolver
+version: 1.0.0
+description: Systematically resolve GitHub PR review comments with per-comment commits and thread resolution
+category: review
+trigger: /pr-review-resolver
+author: diovanibmotta
+license: MIT
+
+install:
+  source: pr-review-resolver.md
+  destinations:
+    global:
+      windows: "%USERPROFILE%\.claude\commands\pr-review-resolver.md"
+      unix: "~/.claude/commands/pr-review-resolver.md"
+    local: ".claude/commands/pr-review-resolver.md"
+
+requirements:
+  - name: gh
+    description: GitHub CLI with GraphQL access — https://cli.github.com
+  - name: git
+    description: Git version control

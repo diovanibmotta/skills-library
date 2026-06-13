@@ -1,0 +1,21 @@
+name: start-task
+version: 1.0.0
+description: Create branch, initial commit, and draft PR for a GitHub issue
+category: dev
+trigger: /start-task
+author: diovanibmotta
+license: MIT
+
+install:
+  source: start-task.md
+  destinations:
+    global:
+      windows: "%USERPROFILE%\.claude\commands\start-task.md"
+      unix: "~/.claude/commands/start-task.md"
+    local: ".claude/commands/start-task.md"
+
+requirements:
+  - name: gh
+    description: GitHub CLI — https://cli.github.com
+  - name: git
+    description: Git version control

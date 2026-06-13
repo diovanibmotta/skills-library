@@ -1,0 +1,19 @@
+name: clean-arch-expert
+version: 1.0.0
+description: Clean Architecture advisor for Java/Spring Boot + Spring Modulith projects
+category: review
+trigger: /clean-arch-expert
+author: diovanibmotta
+license: MIT
+
+install:
+  source: clean-arch-expert.md
+  destinations:
+    global:
+      windows: "%USERPROFILE%\.claude\commands\clean-arch-expert.md"
+      unix: "~/.claude/commands/clean-arch-expert.md"
+    local: ".claude/commands/clean-arch-expert.md"
+
+requirements:
+  - name: java
+    description: Java project with Spring Boot + Spring Modulith

@@ -1,0 +1,21 @@
+name: create-task
+version: 1.0.0
+description: Create a GitHub issue and add it to the project board
+category: dev
+trigger: /create-task
+author: diovanibmotta
+license: MIT
+
+install:
+  source: create-task.md
+  destinations:
+    global:
+      windows: "%USERPROFILE%\.claude\commands\create-task.md"
+      unix: "~/.claude/commands/create-task.md"
+    local: ".claude/commands/create-task.md"
+
+requirements:
+  - name: gh
+    description: GitHub CLI — https://cli.github.com
+  - name: git
+    description: Git version control

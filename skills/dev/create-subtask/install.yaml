@@ -1,0 +1,21 @@
+name: create-subtask
+version: 1.0.0
+description: Create a GitHub sub-issue linked to a parent issue
+category: dev
+trigger: /create-subtask
+author: diovanibmotta
+license: MIT
+
+install:
+  source: create-subtask.md
+  destinations:
+    global:
+      windows: "%USERPROFILE%\.claude\commands\create-subtask.md"
+      unix: "~/.claude/commands/create-subtask.md"
+    local: ".claude/commands/create-subtask.md"
+
+requirements:
+  - name: gh
+    description: GitHub CLI — https://cli.github.com
+  - name: git
+    description: Git version control

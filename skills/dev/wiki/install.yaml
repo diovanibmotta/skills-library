@@ -1,0 +1,21 @@
+name: wiki
+version: 1.0.0
+description: Create or edit GitHub wiki pages via git clone of the wiki repo
+category: dev
+trigger: /wiki
+author: diovanibmotta
+license: MIT
+
+install:
+  source: wiki.md
+  destinations:
+    global:
+      windows: "%USERPROFILE%\.claude\commands\wiki.md"
+      unix: "~/.claude/commands/wiki.md"
+    local: ".claude/commands/wiki.md"
+
+requirements:
+  - name: gh
+    description: GitHub CLI — https://cli.github.com
+  - name: git
+    description: Git version control

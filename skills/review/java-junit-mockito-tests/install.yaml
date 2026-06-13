@@ -1,0 +1,19 @@
+name: java-junit-mockito-tests
+version: 1.0.0
+description: Generate Java unit tests with JUnit 5 + Mockito following strict project conventions
+category: review
+trigger: /java-junit-mockito-tests
+author: diovanibmotta
+license: MIT
+
+install:
+  source: java-junit-mockito-tests.md
+  destinations:
+    global:
+      windows: "%USERPROFILE%\.claude\commands\java-junit-mockito-tests.md"
+      unix: "~/.claude/commands/java-junit-mockito-tests.md"
+    local: ".claude/commands/java-junit-mockito-tests.md"
+
+requirements:
+  - name: java
+    description: Java project with JUnit 5, Mockito, AssertJ, and Lombok

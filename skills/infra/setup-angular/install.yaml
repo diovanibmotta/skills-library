@@ -1,0 +1,21 @@
+name: setup-angular
+version: 1.0.0
+description: Set up Node.js, Angular CLI, and project dependencies for an Angular project
+category: infra
+trigger: /setup-angular
+author: diovanibmotta
+license: MIT
+
+install:
+  source: setup-angular.md
+  destinations:
+    global:
+      windows: "%USERPROFILE%\.claude\commands\setup-angular.md"
+      unix: "~/.claude/commands/setup-angular.md"
+    local: ".claude/commands/setup-angular.md"
+
+requirements:
+  - name: npm
+    description: Node.js package manager (ships with Node.js)
+  - name: nvm
+    description: Node Version Manager (recommended) — https://github.com/nvm-sh/nvm
