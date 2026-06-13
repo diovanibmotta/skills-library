@@ -49,42 +49,46 @@ Detailed instructions for Claude to follow when this skill is invoked.
 
 ## Commit Messages
 
-All commits **must** follow [Conventional Commits](https://www.conventionalcommits.org/) — this repo uses semantic-release to automate versioning and changelogs.
+All commits **must** follow [Conventional Commits](https://www.conventionalcommits.org/) with [Gitmoji](https://gitmoji.dev/) — this repo uses semantic-release to automate versioning and changelogs.
 
 ### Format
 
 ```
-<type>(<scope>): <description>
+<emoji> <type>(<scope>): <description>
 
 [optional body]
 
 [optional footer(s)]
 ```
 
-### Types
+### Types & Emojis
 
-| Type | When to use |
-|------|-------------|
-| `feat` | New skill added |
-| `fix` | Bug fix in an existing skill |
-| `docs` | README, CONTRIBUTING, or inline doc changes |
-| `refactor` | Skill rewrite with no behavior change |
-| `chore` | Repo config, CI, tooling — no skill changes |
+| Emoji | Code | Type | When to use |
+|-------|------|------|-------------|
+| ✨ | `:sparkles:` | `feat` | New skill added |
+| 🐛 | `:bug:` | `fix` | Bug fix in an existing skill |
+| 📝 | `:memo:` | `docs` | README, CONTRIBUTING, or inline doc changes |
+| ♻️ | `:recycle:` | `refactor` | Skill rewrite with no behavior change |
+| 🔧 | `:wrench:` | `chore` | Repo config, CI, tooling — no skill changes |
+| 🔥 | `:fire:` | `chore` | Remove skill or dead content |
+| 💥 | `:boom:` | `feat!` | Breaking change in skill interface |
+| 🎨 | `:art:` | `refactor` | Formatting or structure improvement |
 
 ### Examples
 
 ```
-feat(dev): add ship-task skill for automated PR shipping
-fix(review): correct checklist order in code-review skill
-docs: update skills index with new infra skills
+✨ feat(dev): add ship-task skill for automated PR shipping
+🐛 fix(review): correct checklist order in code-review skill
+📝 docs: update skills index with new infra skills
+🔧 chore: add commitlint config
 ```
 
 ### Breaking Changes
 
-Add `!` after the type or a `BREAKING CHANGE:` footer for skills that change their interface:
+Add `!` after the type and use `💥` emoji for skills that change their interface:
 
 ```
-feat(dev)!: rename start-task to begin-task
+💥 feat(dev)!: rename start-task to begin-task
 
 BREAKING CHANGE: slash command renamed from /start-task to /begin-task
 ```
