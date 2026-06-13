@@ -6,7 +6,7 @@
       {
         "preset": "angular",
         "parserOpts": {
-          "headerPattern": "^(?:.+\s)?([a-zA-Z]+)(?:\(([^)]+)\))?(!)?:\s?(.+)$",
+          "headerPattern": "^(?:.+\\s)?([a-zA-Z]+)(?:\\(([^)]+)\\))?(!)?:\\s?(.+)$",
           "headerCorrespondence": ["type", "scope", "breaking", "subject"]
         },
         "releaseRules": [
@@ -29,7 +29,7 @@
       {
         "preset": "angular",
         "parserOpts": {
-          "headerPattern": "^(?:.+\s)?([a-zA-Z]+)(?:\(([^)]+)\))?(!)?:\s?(.+)$",
+          "headerPattern": "^(?:.+\\s)?([a-zA-Z]+)(?:\\(([^)]+)\\))?(!)?:\\s?(.+)$",
           "headerCorrespondence": ["type", "scope", "breaking", "subject"]
         },
         "writerOpts": {
