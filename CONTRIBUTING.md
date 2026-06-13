@@ -47,12 +47,57 @@ Detailed instructions for Claude to follow when this skill is invoked.
 | `skills/infra/` | CI/CD, cloud, containers |
 | `skills/docs/` | Documentation, changelogs, ADRs |
 
+## Commit Messages
+
+All commits **must** follow [Conventional Commits](https://www.conventionalcommits.org/) — this repo uses semantic-release to automate versioning and changelogs.
+
+### Format
+
+```
+<type>(<scope>): <description>
+
+[optional body]
+
+[optional footer(s)]
+```
+
+### Types
+
+| Type | When to use |
+|------|-------------|
+| `feat` | New skill added |
+| `fix` | Bug fix in an existing skill |
+| `docs` | README, CONTRIBUTING, or inline doc changes |
+| `refactor` | Skill rewrite with no behavior change |
+| `chore` | Repo config, CI, tooling — no skill changes |
+
+### Examples
+
+```
+feat(dev): add ship-task skill for automated PR shipping
+fix(review): correct checklist order in code-review skill
+docs: update skills index with new infra skills
+```
+
+### Breaking Changes
+
+Add `!` after the type or a `BREAKING CHANGE:` footer for skills that change their interface:
+
+```
+feat(dev)!: rename start-task to begin-task
+
+BREAKING CHANGE: slash command renamed from /start-task to /begin-task
+```
+
+> PRs with non-conforming commit messages will be blocked.
+
 ## Pull Request Checklist
 
 - [ ] Skill tested locally in a Claude Code session
 - [ ] `README.md` Skills Index updated
 - [ ] Skill placed in correct category folder
 - [ ] File named `skill-name.md` matching the `name:` field
+- [ ] All commits follow Conventional Commits format
 
 ## Issues
 
