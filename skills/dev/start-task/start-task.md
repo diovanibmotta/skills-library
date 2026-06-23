@@ -20,12 +20,19 @@ git branch --show-current
 git branch -a --format="%(refname:short)" | sed 's|origin/||' | sort -u | head -40
 ```
 
-Also fetch the org/user name from the repo and list projects:
+After resolving `owner` from `gh repo view` above, fetch projects (run after owner is known):
 
 ```bash
 gh project list --owner "@me" --format json 2>/dev/null
-gh project list --owner "<org>" --format json 2>/dev/null
+gh project list --owner "{{owner}}" --format json 2>/dev/null
 ```
+
+**IMPORTANT:** These commands MUST actually be executed. Do not skip or simulate their output. Use the real results to populate the project list in Step 2.
+
+**Check token scopes** from `gh auth status`: if `read:project` and `project` are both absent, warn:
+> ⚠️ Token missing `read:project` — project list will be empty. Fix: `gh auth refresh -s project`
+
+Do NOT override project list with `[]` based on scope — always use actual command output.
 
 **Resolve the issue number** from `$ARGUMENTS`:
 - If `$ARGUMENTS` contains a number (e.g. `42` or `#42`), use it as `issueNumber`.
@@ -78,7 +85,7 @@ Ask the user the following questions **all at once** using `AskUserQuestion` wit
    - `{{project-title-1}}` (number: {{N}})
    - `{{project-title-2}}` (number: {{N}})
    - `{{project-title-3}}` (number: {{N}}) *(include only if ≤3 projects found)*
-   - If no projects were found, show only "None / Skip"
+   - If no projects were found, show only "None / Skip" with description _(no projects found — if you have active projects, run `gh auth refresh -s project` and retry)_. **Do NOT add an "N/A" option.**
 
 ---
 

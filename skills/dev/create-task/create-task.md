@@ -21,30 +21,57 @@ Do **not** skip this step. Image detection must happen before any `gh` commands 
 
 ---
 
-## Step 1 — Detect repository context
+## Step 1 — Detect repository context and available options
 
-Run the following in parallel:
+Run everything in parallel:
 
 ```bash
 gh repo view --json owner,name,defaultBranchRef
 git branch --show-current
 git branch -a --format="%(refname:short)" | sed 's|origin/||' | sort -u | head -40
+gh auth status 2>&1
 ```
 
-Then fetch the org/user name from the repo and list projects and issue types in parallel:
+Parse `gh auth status` output. Look for the `Token scopes:` line.
+
+- `hasProjectReadScope` = `true` if scopes contain `read:project` **or** `project`
+- `hasProjectWriteScope` = `true` if scopes contain `project`
+
+If `hasProjectReadScope = false`: print a **non-blocking warning** and continue (do not stop):
+
+> ⚠️ Token missing `read:project` scope — project list will be empty.
+> Fix now: `gh auth refresh -s read:project` (list only) or `gh auth refresh -s project` (full board access), then re-run `/create-task`.
+
+If `hasProjectReadScope = true` but `hasProjectWriteScope = false`: print a **non-blocking warning**:
+
+> ⚠️ Token has `read:project` but not `project` — projects will be listed but items cannot be added to the board.
+> Fix: `gh auth refresh -s project`
+
+Store: `owner`, `repo`, `defaultBranch`, `currentBranch`, available branches.
+
+### 1b — Fetch available options from GitHub
+
+Run all in parallel (using `owner` and `repo` resolved in Step 1):
 
 ```bash
-# Replace <org> with the owner value obtained above
-gh project list --owner "@me" --format json 2>/dev/null
-gh project list --owner "<org>" --format json 2>/dev/null
+gh api repos/{{owner}}/{{repo}}/labels --jq '.[].name' 2>/dev/null
 gh api repos/{{owner}}/{{repo}}/issue-types 2>/dev/null
+gh project list --owner "@me" --format json 2>/dev/null
+gh project list --owner "{{owner}}" --format json 2>/dev/null
 ```
 
-From the project list JSON, extract each project's `number`, `title`, and `url`. Deduplicate by number.
+**IMPORTANT:** These commands MUST actually be executed. Do not skip or simulate their output. Use the real results to populate the project list in Q4.
 
-From the issue types response, extract `{ id, name }` for each available type (e.g. Bug, Feature, Task). Store as `repoIssueTypes`. If the endpoint returns 404 or empty, store `null`.
+**Issue types** (`gh api repos/.../issue-types`): extract `{ id, name }` for each type. Store as `repoIssueTypes`. If 404/empty, store `null`.
 
-Store: `owner`, `repo`, `defaultBranch`, `currentBranch`, available branches, list of projects (number + title), `repoIssueTypes`.
+**Projects**: combine results from both `gh project list` calls. Deduplicate by number. Extract `number`, `title`. Store as `availableProjects`. If both commands returned errors or empty results, store `[]`.
+
+**IMPORTANT:** Do NOT set `availableProjects = []` based on scope detection alone — always use actual command output.
+
+Show a one-line discovery summary before asking questions:
+
+> Found: **{{N}} issue type(s)** | **{{M}} project(s)**
+> _(if hasProjectReadScope = false: "Projects unavailable — token missing `read:project` scope. Run: `gh auth refresh -s project`")_
 
 ---
 
@@ -54,133 +81,133 @@ Store: `owner`, `repo`, `defaultBranch`, `currentBranch`, available branches, li
 
 **Never ask the user for the title.** Derive it from available context in this priority order:
 
-1. **Skill arguments** (`$ARGUMENTS`): if the user passed text when invoking the skill, distill it into a concise imperative title (max 72 chars, English, no trailing period). E.g. `"add weekly view navigation to calendar"`.
-2. **Recent git commits** (`git log -5 --oneline`): if no arguments were given, infer the title from the most recent commit messages on the current branch that describe in-progress work.
-3. **Current branch name**: if neither above yields a clear title, humanize the branch name (e.g. `feature/user-auth` → `"add user authentication"`).
-4. **Fallback**: if no context is available, generate a generic title like `"work in progress"` and note it to the user.
+1. **Skill arguments** (`$ARGUMENTS`): if the user passed text when invoking the skill, distill it into a concise imperative title (max 72 chars, English, no trailing period).
+2. **Recent git commits** (`git log -5 --oneline`): infer title from most recent commits on current branch.
+3. **Current branch name**: humanize the branch name (e.g. `feature/user-auth` → `"add user authentication"`).
+4. **Fallback**: `"work in progress"`.
 
-Store the derived title. Show it to the user as a one-line note before the questions (not a question — just informational):
+Show as one-line note before questions:
 
 > "Title derived from context: **{{derived-title}}**"
 
-### 2b — Ask for type, base branch, priority, and project
+### 2b — Ask for type, base branch, project, and GitHub issue type
 
-**MANDATORY:** Always ask all 4 questions below via `AskUserQuestion`. Never infer or skip the task type question — it must always be explicitly confirmed by the user.
+**MANDATORY:** Always ask all questions below via `AskUserQuestion`. Never infer or skip.
 
-Ask the user the following questions **all at once** using `AskUserQuestion` with **4 questions**.
+**IMPORTANT — `AskUserQuestion` enforces a hard limit of 4 options per question.**
 
-**IMPORTANT — `AskUserQuestion` enforces a hard limit of 4 options per question.** Never exceed this limit. Group rare types together and rely on the auto-generated "Other" option for edge cases.
+Ask **all at once** using `AskUserQuestion` with **4 questions**:
 
-1. **Task type** (single-select, **max 4 options**):
-   - `feat` — New feature (branch: `feature/<kebab-name>`)
-   - `fix` — Bug fix (branch: `bugfix/<issue-number>`)
-   - `refactor` — Refactor (branch: `task/<issue-number>`)
-   - `chore` — Chore / config / deps / docs / test / perf / build / ci / style (branch: `task/<issue-number>`)
+**Q1 — Task type** (single-select, max 4 options — semantic type for branch naming and commit convention):
+- `feat` — New feature → branch `feature/<kebab-name>`
+- `fix` — Bug fix → branch `bugfix/<issue-number>`
+- `refactor` — Refactor → branch `task/<issue-number>`
+- `chore` — Chore / config / deps / docs / test / perf / build / ci / style → branch `task/<issue-number>`
 
-   If the user selects "Other" (auto-generated), treat it as the type they type in free text. Map it to the closest semantic type from: `chore`, `docs`, `test`, `perf`, `build`, `ci`, `style`.
+If user selects "Other" (auto-generated), treat as free-text and map to closest: `chore`, `docs`, `test`, `perf`, `build`, `ci`, `style`.
 
-2. **Base branch** (single-select, **max 4 options** — list up to 3 detected branches from Step 1, mark `main` or `develop` as recommended if present)
+**Q2 — Base branch** (single-select, max 4 options — list up to 3 detected branches from Step 1; mark `main` or `develop` as recommended if present)
 
-3. **Priority** (single-select, **optional**, **max 4 options** — include "None / Skip" as first option):
-   - `None / Skip` (recommended — priority can be set later)
-   - `P1 — High`
-   - `P2 — Medium`
-   - `P3 — Low`
+**Q3 — GitHub issue type** (single-select, max 4 options):
 
-   P0 — Critical is available via the auto-generated "Other" option.
+- **If `repoIssueTypes` is not null/empty**: list the REAL issue type names from GitHub (e.g. `Feature`, `Bug`, `Task`, `Enhancement`). Show up to 4. Include descriptions from the API response if available.
+- **If `repoIssueTypes` is null**: show these fallback options:
+  - `Feature` — new capability
+  - `Bug` — something broken
+  - `Task` — work item / chore
+  - (use "Other" for anything else)
 
-4. **GitHub Project** (single-select, **optional**, **max 4 options** — list up to 3 projects detected in Step 1 by title; always include "None / Skip" as first option):
-   - `None / Skip`
-   - `{{project-title-1}}` (number: {{N}})
-   - `{{project-title-2}}` (number: {{N}})
-   - `{{project-title-3}}` (number: {{N}}) *(include only if ≤3 projects found)*
-   - If no projects were found, show only "None / Skip"
+**Q4 — GitHub Project** (single-select, max 4 options — always include "None / Skip" as first option):
 
-### 2c — Fetch project fields (if project selected)
+- **If `availableProjects` is not empty**: list up to 3 project titles. E.g.:
+  - `None / Skip`
+  - `{{project-title-1}}` (number: {{N}})
+  - `{{project-title-2}}` (number: {{N}})
+- **If `availableProjects` is empty**: show only `None / Skip` with description _(no projects found — if you have active projects, run `gh auth refresh -s project` and retry)_. **Do NOT add an "N/A" option** — one option is sufficient for this case.
 
-**If the user selected a project (not "None / Skip")**, immediately fetch that project's custom fields to discover available Type and Priority options on the board:
+### 2c — Fetch project board fields (if project selected)
+
+**Run only if user selected a project (not "None / Skip").**
+
+Fetch that project's fields to discover available Type and Priority options:
 
 ```bash
 gh project field-list {{project-number}} \
-  --owner "{{project-owner}}" \
+  --owner "{{owner}}" \
   --format json
 ```
 
-Parse the JSON response. Look for fields named `Type` and `Priority` (case-insensitive). For each found field, extract:
-- `field.id` — the field node ID
-- `field.options[]` — array of `{ id, name }` objects (for single-select fields)
+Parse the JSON. Look for fields named `Type` and `Priority` (case-insensitive). Extract:
+- `field.id` — node ID
+- `field.options[]` — array of `{ id, name }` (single-select fields)
 
 Store:
-- `projectTypeFieldId` — node ID of the Type field (or `null` if not found)
-- `projectTypeOptions` — array of `{ id, name }` for Type options
-- `projectPriorityFieldId` — node ID of the Priority field (or `null` if not found)
-- `projectPriorityOptions` — array of `{ id, name }` for Priority options
+- `projectTypeFieldId` (or `null`)
+- `projectTypeOptions` — array of `{ id, name }` with the REAL board options
+- `projectPriorityFieldId` (or `null`)
+- `projectPriorityOptions` — array of `{ id, name }` with the REAL board options
 
-Also fetch the project's node ID (needed for `gh project item-edit`):
+Also fetch project node ID:
 
 ```bash
 gh api graphql -f query='
   query($owner: String!, $number: Int!) {
-    user(login: $owner) { projectV2(number: $number) { id } }
-  }' -f owner="{{project-owner}}" -F number={{project-number}} \
-  --jq '.data.user.projectV2.id' 2>/dev/null \
+    organization(login: $owner) { projectV2(number: $number) { id } }
+  }' -f owner="{{owner}}" -F number={{project-number}} \
+  --jq '.data.organization.projectV2.id' 2>/dev/null \
 || gh api graphql -f query='
   query($owner: String!, $number: Int!) {
-    organization(login: $owner) { projectV2(number: $number) { id } }
-  }' -f owner="{{project-owner}}" -F number={{project-number}} \
-  --jq '.data.organization.projectV2.id'
+    user(login: $owner) { projectV2(number: $number) { id } }
+  }' -f owner="{{owner}}" -F number={{project-number}} \
+  --jq '.data.user.projectV2.id'
 ```
 
 Store as `projectNodeId`.
 
-**Then ask the user for project-specific field values** using `AskUserQuestion` with up to 2 questions (only ask questions for fields that actually exist on the project):
+**Ask the user for board field values** using `AskUserQuestion` with up to 2 questions. Only ask for fields that actually exist on the project:
 
-**IMPORTANT — `AskUserQuestion` enforces a hard limit of 4 options per question.**
+**IMPORTANT — Always present the REAL options fetched from the board. Never use hardcoded values here.**
 
-- If `projectTypeFieldId` is found: ask **"Type (on project board)"** as single-select. **This field is MANDATORY — do NOT include a "None / Skip" option.** List the project's actual option names only (e.g. Bug, Feature, Task). Max 4 options. The user must pick one; this value will always be set on the card.
-- If `projectPriorityFieldId` is found: ask **"Priority (on project board)"** as single-select. Include "None / Skip" as first option, then up to 3 of the project's actual priority option names (max 4 total). Pre-select the option that best matches the priority chosen in Step 2b (e.g., if user chose "P2 — Medium", highlight the option containing "Medium" or "P2").
+- If `projectTypeFieldId` found: ask **"Type (project board)"** — single-select, **mandatory** (no "None / Skip"). List ALL real option names from `projectTypeOptions` (max 4). User must pick one.
+- If `projectPriorityFieldId` found: ask **"Priority (project board)"** — single-select. First option: `None / Skip`. Then list real option names from `projectPriorityOptions` (max 3, totaling 4). Pre-highlight the option that best matches the task type or context.
 
-If neither field is found on the project, skip this step silently and proceed.
+If neither field exists on the project, skip silently and proceed.
 
-Store the selected option IDs as `selectedTypeOptionId` and `selectedPriorityOptionId` (null if skipped).
+Store selected option IDs as `selectedTypeOptionId` and `selectedPriorityOptionId` (null if skipped).
 
-Show a one-line confirmation to the user before proceeding:
+Show confirmation line:
 
-> "Board fields: Type → **{{selected type name or "—"}}** | Priority → **{{selected priority name or "—"}}**"
+> "Board fields: Type → **{{name or "—"}}** | Priority → **{{name or "—"}}**"
 
 ### 2d — Mandatory description
 
-After receiving the answers from 2b and 2c (project field selections), ask the user in plain text (free-form message — NOT AskUserQuestion):
+After receiving all question answers, ask the user in plain text (free-form — NOT AskUserQuestion):
 
 > "Describe the problem or task in detail. What is happening? What should happen instead? Include steps to reproduce if applicable."
 
-**This description is required.** If the user sends nothing meaningful (empty reply or single word), prompt once more:
+**This description is required.** If the user sends nothing meaningful (empty or single word), prompt once more:
 
 > "A detailed description is required. Please describe the problem, expected behavior, and any relevant context."
 
-Use the user's description as the issue body. Do **not** use this reply to change the title. Do **not** fall back to the title as the description — wait for real input.
+Use the user's description as the issue body. Do **not** use this reply to change the title.
 
 ---
 
-## Step 3 — Resolve GitHub issue type
+## Step 3 — Resolve GitHub issue type for `--type` flag
 
-**Before creating the issue**, resolve the native GitHub issue type from `repoIssueTypes`:
+Map the **Q3 answer** (GitHub issue type selected by user in Step 2b) to the `--type` value for `gh issue create`:
 
-- If `repoIssueTypes` is not null/empty, map the task type chosen in Step 2b to a GitHub issue type:
-  - `feat` → match option whose name contains "Feature" (case-insensitive)
-  - `fix` → match option whose name contains "Bug"
-  - `refactor`, `chore`, `docs`, `test`, `perf`, `build`, `ci`, `style` → match option whose name contains "Task"
-  - If no match found for the mapped name, use the first available option as fallback.
-- Store the matched type name as `ghIssueTypeName`. Show a one-line note: `Issue type: **{{ghIssueTypeName}}**` (auto-mapped — no question needed).
-- If `repoIssueTypes` is null, store `ghIssueTypeName` as `null` and skip silently.
+- Use the exact name selected by the user (e.g. `"Feature"`, `"Bug"`, `"Task"`).
+- Store as `ghIssueTypeName`.
+- Show: `Issue type: **{{ghIssueTypeName}}**`
+
+If user picked an option not in `repoIssueTypes` (e.g. selected via "Other" free text), use the value as-is and warn that it may fail if not recognized by GitHub.
 
 ---
 
 ## Step 4 — Create GitHub issue
 
-Build the issue body using the template below. Fill every `{{placeholder}}` before running the command.
-
-**Issue body template:**
+Build the issue body:
 
 ```markdown
 ## Context
@@ -204,8 +231,6 @@ Build the issue body using the template below. Fill every `{{placeholder}}` befo
 {{/if}}
 ```
 
-> The `{{placeholder}}` lines in the Screenshots section will be replaced with real URLs after images are uploaded (see Step 4a).
-
 Run:
 
 ```bash
@@ -215,25 +240,25 @@ gh issue create \
   --body "{{body}}" \
   --assignee "{{gh-username}}" \
   --label "{{label}}" \
-  {{#if ghIssueTypeName}}--type "{{ghIssueTypeName}}"{{/if}}
+  --type "{{ghIssueTypeName}}"
 ```
 
-> If `gh` returns an error for `--type` (older CLI version), retry without the flag and warn the user to set the type manually.
+> If `gh` returns an error for `--type` (flag not supported or type not found), retry without it and warn the user to set the type manually.
 
 **Label mapping** (create label first if it doesn't exist using `gh label create`):
 
-| Type     | Label name    | Color    |
-|----------|---------------|----------|
-| feat     | `enhancement` | `#a2eeef` |
-| fix      | `bug`         | `#d73a4a` |
-| refactor | `refactor`    | `#e4e669` |
-| chore    | `chore`       | `#cfd3d7` |
+| Type     | Label name      | Color    |
+|----------|-----------------|----------|
+| feat     | `enhancement`   | `#a2eeef` |
+| fix      | `bug`           | `#d73a4a` |
+| refactor | `refactor`      | `#e4e669` |
+| chore    | `chore`         | `#cfd3d7` |
 | docs     | `documentation` | `#0075ca` |
-| test     | `test`        | `#bfd4f2` |
-| perf     | `performance` | `#0e8a16` |
-| build    | `build`       | `#e99695` |
-| ci       | `ci`          | `#f9d0c4` |
-| style    | `style`       | `#fef2c0` |
+| test     | `test`          | `#bfd4f2` |
+| perf     | `performance`   | `#0e8a16` |
+| build    | `build`         | `#e99695` |
+| ci       | `ci`            | `#f9d0c4` |
+| style    | `style`         | `#fef2c0` |
 
 To get the current GitHub username:
 ```bash
@@ -246,7 +271,7 @@ Store the created issue number from the command output (e.g., `https://github.co
 
 ### Step 4a — Upload images (if hasImages is true)
 
-**Run only if `hasImages = true`.** Upload each image in `pendingImages` to a dedicated GitHub release used as a static asset store, then update the issue body with the real image URLs.
+**Run only if `hasImages = true`.**
 
 **4a-1: Ensure the `issue-assets` release tag exists:**
 
@@ -261,16 +286,15 @@ gh release view issue-assets --repo {{owner}}/{{repo}} > /dev/null 2>&1 \
 
 **4a-2: Upload each image and collect URLs:**
 
-For each file in `pendingImages` (e.g., `issue-img-1.png`), rename it to include the issue number for uniqueness (`issue-{{issue-number}}-img-{{N}}.png`), then upload:
+For each file in `pendingImages`, rename to `issue-{{issue-number}}-img-{{N}}.png`, then:
 
 ```bash
-# Rename for uniqueness, then upload
 gh release upload issue-assets "issue-{{issue-number}}-img-{{N}}.png" \
   --repo {{owner}}/{{repo}} \
   --clobber
 ```
 
-After all uploads, fetch the download URLs:
+Fetch download URLs:
 
 ```bash
 gh release view issue-assets \
@@ -279,9 +303,9 @@ gh release view issue-assets \
   --jq '.assets[] | select(.name | startswith("issue-{{issue-number}}-")) | .browser_download_url'
 ```
 
-Store the list as `imageUrls`.
+Store as `imageUrls`.
 
-**4a-3: Update the issue body** with real image URLs. Replace each `{{placeholder}}` in the Screenshots section with the actual URL:
+**4a-3: Update issue body** with real image URLs:
 
 ```bash
 gh issue edit {{issue-number}} \
@@ -291,41 +315,40 @@ gh issue edit {{issue-number}} \
 
 Log: `✓ Uploaded {{N}} image(s) and attached to issue #{{issue-number}}`
 
-**If any upload step fails**, log a warning and continue — add a note in the issue body instead:
-> `> ⚠️ Screenshots could not be uploaded automatically. Please attach them manually.`
+If upload fails, add note in issue body: `> ⚠️ Screenshots could not be uploaded automatically. Please attach them manually.`
 
 ---
 
-**If the user selected a project (not "None"):**
+**If the user selected a project (not "None / Skip"):**
 
 ```bash
 gh project item-add {{project-number}} \
-  --owner "{{project-owner}}" \
+  --owner "{{owner}}" \
   --url "https://github.com/{{owner}}/{{repo}}/issues/{{issue-number}}"
 ```
 
-Then fetch the item node ID for the newly added issue:
+Then fetch the item node ID:
 
 ```bash
 gh project item-list {{project-number}} \
-  --owner "{{project-owner}}" \
+  --owner "{{owner}}" \
   --format json \
   --jq '.items[] | select(.content.number == {{issue-number}}) | .id'
 ```
 
 Store as `issueItemId`.
 
-**Set Type and Priority fields on the issue project item** (if field IDs and option IDs were collected in Step 2c):
+**Set Type and Priority fields** using the REAL option IDs collected in Step 2c:
 
 ```bash
-# Set Type field (always set — selectedTypeOptionId is never null at this point)
+# Set Type field (always set — mandatory)
 gh project item-edit \
   --project-id "{{projectNodeId}}" \
   --id "{{issueItemId}}" \
   --field-id "{{projectTypeFieldId}}" \
   --single-select-option-id "{{selectedTypeOptionId}}"
 
-# Set Priority field (if selectedPriorityOptionId is not null)
+# Set Priority field (only if user made a selection)
 gh project item-edit \
   --project-id "{{projectNodeId}}" \
   --id "{{issueItemId}}" \
@@ -333,20 +356,18 @@ gh project item-edit \
   --single-select-option-id "{{selectedPriorityOptionId}}"
 ```
 
-Run the Type command always (it is mandatory). Run Priority only if the user made a selection (not "None / Skip"). Log each result: `✓ Set Type → {{name}}` / `✓ Set Priority → {{name}}`.
+Log each result: `✓ Set Type → {{name}}` / `✓ Set Priority → {{name}}`.
 
 ---
 
 ## Step 5 — Final summary
 
-Print a summary to the user:
-
 ```
 ✅ Issue created successfully
 ─────────────────────────────────────────
 Issue     #{{issue-number}} — {{title}}
-Type      {{semantic-type}} | Board: {{board-type-name or "—"}}
-Priority  {{priority or "—"}}
+Type      {{semantic-type}} | GitHub: {{ghIssueTypeName}} | Board: {{board-type-name or "—"}}
+Priority  {{board-priority-name or "—"}}
 Project   {{project-name or "—"}}
 ─────────────────────────────────────────
 Ready to start? Run: /start-task {{issue-number}}
@@ -356,7 +377,8 @@ Ready to start? Run: /start-task {{issue-number}}
 
 ## Notes
 
-- **This skill works in any GitHub repository.** It auto-detects owner, repo, and available branches/projects.
-- If the repository has no projects, show only "None / Skip" in the project question and skip all project-related steps.
+- **This skill works in any GitHub repository.** It auto-detects owner, repo, branches, projects, and available issue types.
+- Missing `project` scope degrades gracefully — issue is still created; board fields are skipped with a warning.
+- If the repository has no projects, show only "None / Skip" and skip all project-related steps.
 - If `gh` is not authenticated, stop at Step 1 and tell the user to run `gh auth login`.
-- The PostToolUse hook may auto-assign the issue — that is expected behaviour; do not re-assign to avoid duplicates.
+- The PostToolUse hook may auto-assign the issue — expected behaviour; do not re-assign to avoid duplicates.

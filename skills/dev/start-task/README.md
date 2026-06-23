@@ -30,6 +30,23 @@ Given a GitHub issue number, creates the branch, makes an initial commit (if cha
 
 - `gh` authenticated (`gh auth login`)
 - Issue created via `/create-task`
+- `project` scope on the GitHub token (see below)
+
+## GitHub token scopes
+
+| Scope | Required for |
+|-------|-------------|
+| `repo` | Creating branches, PRs |
+| `read:project` | Listing available projects |
+| `project` | Listing **and** adding PR cards to the project board (recommended) |
+
+To add the `project` scope to your token:
+
+```bash
+gh auth refresh -s project
+```
+
+> Without `project` (or `read:project`), the project list will be empty and you will see "no projects found". The branch and PR are still created — board assignment is skipped.
 
 ## Usage
 

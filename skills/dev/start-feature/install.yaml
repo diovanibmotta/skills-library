@@ -1,0 +1,21 @@
+name: start-feature
+version: 1.0.0
+description: Create branches and draft PRs across all repositories for a feature
+category: dev
+trigger: /start-feature
+author: diovanibmotta
+license: MIT
+
+install:
+  source: start-feature.md
+  destinations:
+    global:
+      windows: "%USERPROFILE%\.claude\commands\start-feature.md"
+      unix: "~/.claude/commands/start-feature.md"
+    local: ".claude/commands/start-feature.md"
+
+requirements:
+  - name: gh
+    description: GitHub CLI — https://cli.github.com
+  - name: git
+    description: Git version control

@@ -1,0 +1,21 @@
+name: create-feature
+version: 1.0.0
+description: Create a cross-repository feature issue with linked sub-tasks
+category: dev
+trigger: /create-feature
+author: diovanibmotta
+license: MIT
+
+install:
+  source: create-feature.md
+  destinations:
+    global:
+      windows: "%USERPROFILE%\.claude\commands\create-feature.md"
+      unix: "~/.claude/commands/create-feature.md"
+    local: ".claude/commands/create-feature.md"
+
+requirements:
+  - name: gh
+    description: GitHub CLI — https://cli.github.com
+  - name: git
+    description: Git version control

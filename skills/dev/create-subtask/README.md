@@ -22,6 +22,23 @@ Creates a GitHub issue in any repository and links it as a sub-issue of a parent
 
 - `gh` authenticated (`gh auth login`)
 - Sub-issues feature enabled on the GitHub plan/org
+- `project` scope on the GitHub token (see below)
+
+## GitHub token scopes
+
+| Scope | Required for |
+|-------|-------------|
+| `repo` | Creating issues, labels |
+| `read:project` | Listing available projects |
+| `project` | Listing **and** adding items to the project board (recommended) |
+
+To add the `project` scope to your token:
+
+```bash
+gh auth refresh -s project
+```
+
+> Without `project` (or `read:project`), the project list will be empty and you will see "no projects found". The issue is still created — board assignment is skipped.
 
 ## Usage
 
