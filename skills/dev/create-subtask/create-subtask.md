@@ -12,7 +12,7 @@ To start working on the sub-issue (branch + PR), run `/start-task <issue-number>
 
 ## Step 1 — Detect repository context
 
-Run the following in parallel:
+**Phase 1** — Run in parallel to resolve owner/repo first:
 
 ```bash
 gh repo view --json owner,name,defaultBranchRef
@@ -20,19 +20,27 @@ git branch --show-current
 git branch -a --format="%(refname:short)" | sed 's|origin/||' | sort -u | head -40
 ```
 
-Also fetch projects and issue types in parallel:
+Store: `currentOwner`, `currentRepo`, `defaultBranch`, `currentBranch`, available branches.
+
+**Phase 2** — After `currentOwner` and `currentRepo` are resolved, run in parallel:
 
 ```bash
 gh project list --owner "@me" --format json 2>/dev/null
-gh project list --owner "<org>" --format json 2>/dev/null
+gh project list --owner "{{currentOwner}}" --format json 2>/dev/null
 gh api repos/{{currentOwner}}/{{currentRepo}}/issue-types 2>/dev/null
 ```
 
-From the project list JSON, extract each project's `number`, `title`, and `url`. Deduplicate by number.
+**IMPORTANT:** These commands MUST actually be executed. Do not skip or simulate their output.
+
+**Check token scopes** from `gh auth status`:
+- `hasProjectReadScope` = `true` if scopes contain `read:project` **or** `project`
+- If `hasProjectReadScope = false`: warn: > ⚠️ Token missing `read:project` — project list will be empty. Fix: `gh auth refresh -s project`
+
+From the project list JSON, extract each project's `number`, `title`, and `url`. Deduplicate by number. Store as `availableProjects`. Use actual command output — do NOT override with `[]` based on scope detection alone.
 
 From the issue types response, extract `{ id, name }` for each available type (e.g. Bug, Feature, Task). Store as `repoIssueTypes`. If the endpoint returns 404 or empty, store `null`.
 
-Store: `currentOwner`, `currentRepo`, `defaultBranch`, `currentBranch`, available branches, list of projects (number + title), `repoIssueTypes`.
+Store: list of projects (number + title), `repoIssueTypes`.
 
 ---
 
@@ -109,7 +117,7 @@ Store the derived title. Show it as a one-line note:
    - `{{project-title-1}}` (number: {{N}})
    - `{{project-title-2}}` (number: {{N}})
    - `{{project-title-3}}` (number: {{N}}) *(include only if ≤3 projects found)*
-   - If no projects were found, show only "None / Skip"
+   - If no projects were found, show only "None / Skip" with description _(no projects found — if you have active projects, run `gh auth refresh -s project` and retry)_. **Do NOT add an "N/A" option.**
 
 Store the selected target repo as `targetOwner`/`targetRepo` (resolve owner from `currentOwner` if only repo name was listed).
 
