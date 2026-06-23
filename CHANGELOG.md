@@ -1,3 +1,10 @@
+## [1.0.1](https://github.com/diovanibmotta/skills-library/compare/v1.0.0...v1.0.1) (2026-06-23)
+
+
+### Bug Fixes
+
+* **dev-skills:** fix GitHub project listing when project scope missing ([f9e8c5b](https://github.com/diovanibmotta/skills-library/commit/f9e8c5b5e335dc2ef42fe32588a2e05317a78bcb))
+
 # 1.0.0 (2026-06-13)
 
 
