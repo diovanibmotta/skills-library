@@ -1,0 +1,21 @@
+name: code-review-spec
+version: 1.0.0
+description: Review already-implemented code against its originating SPEC and spec-review decisions, plus a stack-agnostic quality/security check, producing a versioned review file
+category: review
+trigger: /code-review-spec
+author: diovanibmotta
+license: MIT
+
+install:
+  source: code-review-spec.md
+  destinations:
+    global:
+      windows: "%USERPROFILE%\.claude\commands\code-review-spec.md"
+      unix: "~/.claude/commands/code-review-spec.md"
+    local: ".claude/commands/code-review-spec.md"
+
+requirements:
+  - name: git
+    description: Used to compute the diff base and fingerprint changed files
+  - name: spec-review
+    description: Optional but recommended — provides the spec review decisions this skill cross-references
