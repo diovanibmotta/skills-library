@@ -41,6 +41,7 @@ Copy any skill file to `~/.claude/commands/` (global) or `.claude/commands/` (pr
 | [clean-arch-expert](skills/review/clean-arch-expert/) | Clean Architecture advisor for Java/Spring Boot + Modulith |
 | [java-junit-mockito-tests](skills/review/java-junit-mockito-tests/) | Generate Java unit tests with JUnit 5 + Mockito |
 | [spec-review](skills/review/spec-review/) | Discover and review AI-generated SPECs (requirements/design/tasks) |
+| [code-review-spec](skills/review/code-review-spec/) | Review implemented code against its originating SPEC |
 
 ### infra
 
