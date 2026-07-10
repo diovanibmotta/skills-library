@@ -1,0 +1,19 @@
+name: spec-review
+version: 1.0.0
+description: Discover and review AI-generated SPECs (requirements/design/tasks), flag gaps/contradictions/ambiguities, and produce a versioned review file
+category: review
+trigger: /spec-review
+author: diovanibmotta
+license: MIT
+
+install:
+  source: spec-review.md
+  destinations:
+    global:
+      windows: "%USERPROFILE%\.claude\commands\spec-review.md"
+      unix: "~/.claude/commands/spec-review.md"
+    local: ".claude/commands/spec-review.md"
+
+requirements:
+  - name: git
+    description: Used to fingerprint source files (git hash-object) when sha256sum is unavailable
