@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/diovanibmotta/skills-library/compare/v1.0.1...v1.1.0) (2026-07-10)
+
+
+### Features
+
+* **review:** add spec-review skill ([c7fbc97](https://github.com/diovanibmotta/skills-library/commit/c7fbc977b97ee8b05c4522d778380f2bcffc5a92))
+
 ## [1.0.1](https://github.com/diovanibmotta/skills-library/compare/v1.0.0...v1.0.1) (2026-06-23)
 
 
