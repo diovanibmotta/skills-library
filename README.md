@@ -40,6 +40,7 @@ Copy any skill file to `~/.claude/commands/` (global) or `.claude/commands/` (pr
 | [pr-review-resolver](skills/review/pr-review-resolver/) | Resolve PR review comments with per-comment commits |
 | [clean-arch-expert](skills/review/clean-arch-expert/) | Clean Architecture advisor for Java/Spring Boot + Modulith |
 | [java-junit-mockito-tests](skills/review/java-junit-mockito-tests/) | Generate Java unit tests with JUnit 5 + Mockito |
+| [spec-review](skills/review/spec-review/) | Discover and review AI-generated SPECs (requirements/design/tasks) |
 
 ### infra
 
