@@ -1,3 +1,11 @@
+# [1.3.0](https://github.com/diovanibmotta/skills-library/compare/v1.2.0...v1.3.0) (2026-07-15)
+
+
+### Features
+
+* **infra:** add terraform-iac skill ([5f32c70](https://github.com/diovanibmotta/skills-library/commit/5f32c70504299f6a28cd92ee0399d9977a1ca3e5))
+* **review:** add security-verify skill ([892e820](https://github.com/diovanibmotta/skills-library/commit/892e820a5fd096b0024630028de9fb8cc359baf1))
+
 # [1.2.0](https://github.com/diovanibmotta/skills-library/compare/v1.1.0...v1.2.0) (2026-07-10)
 
 
