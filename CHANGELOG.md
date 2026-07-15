@@ -1,3 +1,10 @@
+# [1.4.0](https://github.com/diovanibmotta/skills-library/compare/v1.3.0...v1.4.0) (2026-07-15)
+
+
+### Features
+
+* **infra:** add aws-well-architected-review skill ([58037f1](https://github.com/diovanibmotta/skills-library/commit/58037f1d3eb8119ca903573a3a35ab006f34a8be))
+
 # [1.3.0](https://github.com/diovanibmotta/skills-library/compare/v1.2.0...v1.3.0) (2026-07-15)
 
 
