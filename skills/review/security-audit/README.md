@@ -1,11 +1,11 @@
-# security-verify
+# security-audit
 
 Runs a structured security review over the code changes of a branch/PR/diff — language-, stack-, and cloud-provider-agnostic (application code, infrastructure as code, containers, CI/CD). Classifies findings by severity, maps them to OWASP Top 10/CWE, and delivers ready-to-apply fixes.
 
 ## Trigger
 
 ```
-/security-verify
+/security-audit
 ```
 
 ## What it does
@@ -26,8 +26,8 @@ Any language, any stack, any cloud provider — application code (Java, Python, 
 ## Usage
 
 ```
-/security-verify
-/security-verify against main
+/security-audit
+/security-audit against main
 ```
 
 ## Notes
