@@ -1,18 +1,18 @@
-name: aws-well-architected-review
+name: aws-architecture-review
 version: 1.0.0
 description: Cloud Engineer/Solutions Architect review of an AWS solution architecture against the Well-Architected Framework — reliability/availability/fault tolerance and security first, with a versioned risk-classified report
 category: infra
-trigger: /aws-well-architected-review
+trigger: /aws-architecture-review
 author: diovanibmotta
 license: MIT
 
 install:
-  source: aws-well-architected-review.md
+  source: aws-architecture-review.md
   destinations:
     global:
-      windows: "%USERPROFILE%\.claude\commands\aws-well-architected-review.md"
-      unix: "~/.claude/commands/aws-well-architected-review.md"
-    local: ".claude/commands/aws-well-architected-review.md"
+      windows: "%USERPROFILE%\.claude\commands\aws-architecture-review.md"
+      unix: "~/.claude/commands/aws-architecture-review.md"
+    local: ".claude/commands/aws-architecture-review.md"
 
 requirements:
   - name: aws-cli

@@ -47,7 +47,7 @@ Copy any skill file to `~/.claude/commands/` (global) or `.claude/commands/` (pr
 
 | Skill | Description |
 |-------|-------------|
-| [aws-well-architected-review](skills/infra/aws-well-architected-review/) | AWS Well-Architected review of a solution architecture — reliability/availability/fault tolerance and security first |
+| [aws-architecture-review](skills/infra/aws-architecture-review/) | AWS Well-Architected review of a solution architecture — reliability/availability/fault tolerance and security first |
 | [setup-angular](skills/infra/setup-angular/) | Set up Node.js, Angular CLI, and project dependencies |
 
 ## Contributing

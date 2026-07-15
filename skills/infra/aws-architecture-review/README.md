@@ -1,11 +1,11 @@
-# aws-well-architected-review
+# aws-architecture-review
 
 Acts as a senior Cloud Engineer/Solutions Architect to evaluate an AWS solution architecture (IaC code, a diagram, a design document, or a plain description) against the AWS Well-Architected Framework, with primary focus on Reliability (resilience, availability, fault tolerance) and Security.
 
 ## Trigger
 
 ```
-/aws-well-architected-review
+/aws-architecture-review
 ```
 
 ## What it does
@@ -27,12 +27,12 @@ AWS specifically (service names, patterns, and the disaster-recovery strategy ta
 ## Usage
 
 ```
-/aws-well-architected-review
-/aws-well-architected-review infra/payments/aws
+/aws-architecture-review
+/aws-architecture-review infra/payments/aws
 ```
 
 ## Notes
 
-- Complements (does not replace) the `terraform-iac` skill (code writing conventions) and the `security-verify` skill (point-in-time vulnerabilities in a diff) — this skill's focus is system-level architecture decisions.
+- Complements (does not replace) the `terraform-iac` skill (code writing conventions) and the `security-audit` skill (point-in-time vulnerabilities in a diff) — this skill's focus is system-level architecture decisions.
 - Deliberate, documented trade-offs (e.g. a dev environment without Multi-AZ to save cost) are treated as accepted decisions, not findings.
 - Not a substitute for a formal AWS Well-Architected Review conducted with an AWS or partner Solutions Architect.
