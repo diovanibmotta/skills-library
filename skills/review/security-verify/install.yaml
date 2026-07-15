@@ -1,0 +1,19 @@
+name: security-verify
+version: 1.0.0
+description: Structured security review of a diff/branch/PR — OWASP Top 10, secrets, injection, auth/authz, data exposure, dependency and infrastructure checks, with a severity-classified versioned report
+category: review
+trigger: /security-verify
+author: diovanibmotta
+license: MIT
+
+install:
+  source: security-verify.md
+  destinations:
+    global:
+      windows: "%USERPROFILE%\.claude\commands\security-verify.md"
+      unix: "~/.claude/commands/security-verify.md"
+    local: ".claude/commands/security-verify.md"
+
+requirements:
+  - name: git
+    description: Used to compute the diff scope (git diff/git log)

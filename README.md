@@ -42,6 +42,7 @@ Copy any skill file to `~/.claude/commands/` (global) or `.claude/commands/` (pr
 | [java-junit-mockito-tests](skills/review/java-junit-mockito-tests/) | Generate Java unit tests with JUnit 5 + Mockito |
 | [spec-review](skills/review/spec-review/) | Discover and review AI-generated SPECs (requirements/design/tasks) |
 | [code-review-spec](skills/review/code-review-spec/) | Review implemented code against its originating SPEC |
+| [security-verify](skills/review/security-verify/) | Structured security review of a diff/branch/PR — OWASP Top 10, secrets, injection, auth/authz, dependency and infra checks |
 
 ### infra
 
