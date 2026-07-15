@@ -48,6 +48,7 @@ Copy any skill file to `~/.claude/commands/` (global) or `.claude/commands/` (pr
 
 | Skill | Description |
 |-------|-------------|
+| [aws-architecture-review](skills/infra/aws-architecture-review/) | AWS Well-Architected review of a solution architecture — reliability/availability/fault tolerance and security first |
 | [setup-angular](skills/infra/setup-angular/) | Set up Node.js, Angular CLI, and project dependencies |
 | [terraform-iac](skills/infra/terraform-iac/) | Corporate Terraform conventions — file naming, state isolation per layer/component/cloud-provider, module docs, mandatory init/fmt/validate |
 
