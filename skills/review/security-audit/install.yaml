@@ -1,0 +1,19 @@
+name: security-audit
+version: 1.0.0
+description: Structured security review of a diff/branch/PR — OWASP Top 10, secrets, injection, auth/authz, data exposure, dependency and infrastructure checks, with a severity-classified versioned report
+category: review
+trigger: /security-audit
+author: diovanibmotta
+license: MIT
+
+install:
+  source: security-audit.md
+  destinations:
+    global:
+      windows: "%USERPROFILE%\.claude\commands\security-audit.md"
+      unix: "~/.claude/commands/security-audit.md"
+    local: ".claude/commands/security-audit.md"
+
+requirements:
+  - name: git
+    description: Used to compute the diff scope (git diff/git log)
