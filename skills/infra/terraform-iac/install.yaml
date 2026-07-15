@@ -1,0 +1,19 @@
+name: terraform-iac
+version: 1.0.0
+description: Apply corporate Terraform conventions — file naming, state isolation per layer/component/cloud-provider, module README, check/terraform_data blocks, resource import, and mandatory init/fmt/validate
+category: infra
+trigger: /terraform-iac
+author: diovanibmotta
+license: MIT
+
+install:
+  source: terraform-iac.md
+  destinations:
+    global:
+      windows: "%USERPROFILE%\.claude\commands\terraform-iac.md"
+      unix: "~/.claude/commands/terraform-iac.md"
+    local: ".claude/commands/terraform-iac.md"
+
+requirements:
+  - name: terraform
+    description: HashiCorp Terraform CLI — https://developer.hashicorp.com/terraform/install
